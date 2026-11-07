@@ -48,7 +48,7 @@ Nie uruchamiaj gry przez dwuklik w `index.html`: moduły ES oraz service worker 
 
 1. Wybierz 1–10 osób, unikalne imiona, 5–10 sekund i co najmniej jedną kategorię. Kategoria „18+” jest oznaczona. „Totalny chaos” również zawiera dorosły humor. Kategorie te są początkowo odznaczone.
 2. Ustaw liczbę pytań **na gracza**: preset albo własna liczba całkowita. Limit wynosi `floor(pula wybranych kategorii / liczba graczy)`. Podsumowanie pokazuje pełną liczbę tur i dostępną pulę; nieprawidłowa konfiguracja blokuje start.
-3. Przekaż telefon osobie wskazanej na ekranie. Pytanie jest zakryte. „Odkryj pytanie” ujawnia je i jednocześnie uruchamia zegar.
+3. Przekaż telefon osobie wskazanej na ekranie. Pytanie jest zakryte. „Odkryj pytanie” ujawnia je bez uruchamiania zegara. Przeczytaj je spokojnie, a potem naciśnij **START CZASU**. Dopiero ten przycisk rozpoczyna pełny limit odpowiedzi.
 4. Wymień trzy odpowiedzi w limicie. Po końcu czasu pozostali gracze wybierają „Zaliczone” (+1) lub „Niezaliczone” (0). Nie ma częściowych punktów ani automatycznej oceny. Solo oceniasz się samodzielnie.
 5. Ocenę można cofnąć także na następnym ekranie przekazania telefonu, ale tylko do odkrycia kolejnego pytania. Można też cofnąć ostatnią ocenę w wynikach.
 6. Każdy gra po jednej turze w kolejności. Po równej liczbie tur pojawia się ranking, procent poprawnych i zwycięzca lub wszyscy współzwycięzcy.
@@ -103,7 +103,7 @@ Treści w tej wersji są niezmienione. Jeżeli w przyszłości celowo aktualizuj
 
 ## Testy i ograniczenia odbioru
 
-- `npm test`: 27 testów Node (baza, reguły, kontroler oraz service worker z atrapami).
+- `npm test`: 29 testów Node (baza, reguły, kontroler oraz service worker z atrapami).
 - `npm run test:browser`: 8 scenariuszy w rzeczywistym Chromium: 375/390/430/1280 px, brak przewijania poziomego, długie imiona, formularz, prawdziwe 5 sekund, punktacja, cofanie, remis, restart, kontynuacja, reduced-motion i rzeczywisty cache/start offline w podkatalogu.
 
 Testy przeglądarkowe wymagają narzędzia developerskiego Playwright; sama gra nie ma zależności npm:
@@ -119,3 +119,5 @@ Na Linuxie mogą być wymagane biblioteki systemowe: `npx playwright install --w
 Wzorzec SHA-256 w teście bazy obliczono z oryginalnego załącznika, niezależnie od wygenerowanego modułu. Szczegółowy wynik jest w `TEST-RESULTS.md`.
 
 Nie wykonano testu na fizycznym iPhonie ani w Safari/WebKit. Chromium z mobilnymi rozmiarami ekranu nie zastępuje Safari. Przed imprezą sprawdź na swoim iPhonie dźwięk, blokadę ekranu, safe-area, instalację i ponowne uruchomienie offline według instrukcji powyżej.
+
+Etap czytania jest zapisywany. Odświeżenie lub ukrycie strony podczas czytania nie uruchamia odliczania. Przerwanie już uruchomionego timera nadal kończy czas. Aktualizacja PWA czeka na zamknięcie wszystkich kart gry: po publikacji zamknij grę i otwórz ją ponownie z internetem; jeśli nadal widzisz poprzednią wersję, zamknij i otwórz ją jeszcze raz. Nie kasuj danych strony — zapis rozgrywki zostaje zachowany.

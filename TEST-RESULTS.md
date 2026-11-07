@@ -23,3 +23,7 @@ Dodatkowa weryfikacja w rzeczywistym Chromium 156.0.8078.79 przez Playwright 1.5
 Przy pierwszym przebiegu 7 scenariuszy przeszło, a test offline miał błędne oczekiwanie liczby zasobów (11 zamiast 10). Poprawiono oczekiwanie testu; aplikacja nie wymagała zmiany.
 
 Nie wykonano testów na fizycznym iPhonie ani w Safari/WebKit. Widoki mobilne Chromium nie są testem urządzenia iOS. Test instalacji PWA, rzeczywistej blokady ekranu i dźwięku na iPhonie pozostaje do sprawdzenia według README.
+
+## Aktualizacja — czytanie przed startem czasu
+
+Odkrycie pytania prowadzi do zapisywanego etapu `reading`. Dopiero osobny przycisk START CZASU uruchamia odliczanie. Dodano testy minuty czytania bez upływu czasu, ukrycia i odświeżenia podczas czytania, pełnego limitu po starcie oraz blokady podwójnego startu. Zaktualizowano scenariusze przeglądarkowe i wersję cache. Wynik: 29/29 testów Node oraz 8/8 scenariuszy Chromium.

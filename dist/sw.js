@@ -1,5 +1,5 @@
 // Zmieniaj wersję przy każdej zmianie zasobów, w szczególności questions.js.
-const VERSION='v1-2026-11-07';
+const VERSION='v2-2026-11-07-reading';
 const PREFIX='5-sekund:'+self.registration.scope+':';
 const CACHE=PREFIX+VERSION;
 const ASSETS=['./','./index.html','./style.css','./app.js','./logic.js','./questions.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/apple-touch-icon.png'];

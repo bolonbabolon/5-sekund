@@ -26,7 +26,8 @@ export function newGame(config, random=Math.random) {
   const c=validateConfig(config);
   return {version:VERSION,config:c,queue:shuffle(poolFor(c.categories).map(q=>q.id),random).slice(0,c.names.length*c.rounds),cursor:0,stage:'handoff',history:[]};
 }
-export function reveal(g) { if(g.stage!=='handoff')return false;g.stage='running';return true; }
+export function reveal(g) { if(g.stage!=='handoff')return false;g.stage='reading';return true; }
+export function startTimer(g) {if(g.stage!=='reading')return false;g.stage='running';return true;}
 export function expire(g) {if(g.stage!=='running')return false;g.stage='judging';return true;}
 export function grade(g, accepted) {
   if(g.stage!=='judging'||typeof accepted!=='boolean'||g.history.length!==g.cursor)return false;
@@ -48,7 +49,7 @@ export function restore(raw) {
   if(!g||g.version!==VERSION)throw Error('Nieobsługiwana wersja zapisu.');
   g.config=validateConfig(g.config);
   const total=g.config.names.length*g.config.rounds;
-  if(!Array.isArray(g.queue)||g.queue.length!==total||new Set(g.queue).size!==total||g.queue.some(id=>!byId.has(id)||!g.config.categories.includes(byId.get(id).category))||!Number.isInteger(g.cursor)||g.cursor<0||g.cursor>=total||!['handoff','running','judging','reviewed','finished'].includes(g.stage)||!Array.isArray(g.history))throw Error('Uszkodzony zapis rozgrywki.');
+  if(!Array.isArray(g.queue)||g.queue.length!==total||new Set(g.queue).size!==total||g.queue.some(id=>!byId.has(id)||!g.config.categories.includes(byId.get(id).category))||!Number.isInteger(g.cursor)||g.cursor<0||g.cursor>=total||!['handoff','reading','running','judging','reviewed','finished'].includes(g.stage)||!Array.isArray(g.history))throw Error('Uszkodzony zapis rozgrywki.');
   if(g.history.some((h,i)=>!h||h.index!==i||typeof h.accepted!=='boolean'))throw Error('Uszkodzona historia ocen.');
   const graded=['reviewed','finished'].includes(g.stage);
   if(g.history.length!==g.cursor+(graded?1:0)|| (g.stage==='finished')!==(g.history.length===total))throw Error('Niespójny etap rozgrywki.');

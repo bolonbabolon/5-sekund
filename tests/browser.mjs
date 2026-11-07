@@ -37,7 +37,7 @@ try{
   await p.locator('#start').click();assert.equal(await p.locator('.question').count(),0);await noOverflow(p);
   // Pierwsze uruchomienie SW musi ukończyć się przed kontrolowaniem zegara strony.
   await p.waitForFunction(()=>document.querySelector('#offline').textContent==='GOTOWE OFFLINE');
-  await p.clock.install();await p.locator('#reveal').click();assert.equal((await state(p)).stage,'running');await noOverflow(p);
+  await p.clock.install();await p.locator('#reveal').click();assert.equal((await state(p)).stage,'reading');await p.clock.fastForward(60000);assert.equal((await state(p)).stage,'reading');assert.equal(await p.locator('#timer').count(),0);await noOverflow(p);await p.reload();await p.locator('#continue').click();assert.equal((await state(p)).stage,'reading');await p.locator('#start-timer').click();assert.equal((await state(p)).stage,'running');await noOverflow(p);
   await p.clock.fastForward(2100);assert.ok(await p.locator('#timer').evaluate(e=>e.classList.contains('urgent')));
   assert.equal(await p.locator('#timer').evaluate(e=>getComputedStyle(e).animationName),'none');
   await p.clock.fastForward(3100);await p.locator('#yes').waitFor();await noOverflow(p);await p.locator('#yes').click();
@@ -61,9 +61,9 @@ try{
  await check('prawdziwe 5 sekund, ocena, cofanie, blokada po odkryciu, remis i restart',async()=>{
   const ctx=await browser.newContext({viewport:{width:390,height:844}}),p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(url);
   await p.locator('#custom').click();await p.locator('#custom-rounds').fill('1');await p.locator('#start').click();
-  const start=Date.now();await p.locator('#reveal').click();await p.locator('#yes').waitFor({timeout:8000});assert.ok(Date.now()-start>=4800);
+  const start=Date.now();await p.locator('#reveal').click();await p.locator('#start-timer').click();await p.locator('#yes').waitFor({timeout:8000});assert.ok(Date.now()-start>=4800);
   await p.locator('#yes').click();await p.locator('#next').click();await p.locator('#undo').click();assert.equal((await state(p)).history.length,0);
-  await p.locator('#no').click();await p.locator('#next').click();await p.locator('#reveal').click();assert.equal(await p.locator('#undo').count(),0);
+  await p.locator('#no').click();await p.locator('#next').click();await p.locator('#reveal').click();await p.locator('#start-timer').click();assert.equal(await p.locator('#undo').count(),0);
   await p.clock.install();await p.clock.fastForward(6000);await p.locator('#no').click();assert.match(await p.locator('h2').innerText(),/remis/);
   await p.locator('#undo').click();await p.locator('#yes').click();assert.match(await p.locator('h2').innerText(),/zwycięzcę/);
   const oldQueue=(await state(p)).queue;p.once('dialog',d=>d.accept());await p.locator('#again').click();assert.equal((await state(p)).history.length,0);assert.equal((await state(p)).queue.length,oldQueue.length);
@@ -71,9 +71,9 @@ try{
   p.once('dialog',d=>d.accept());await p.locator('#exit').click();await p.locator('#start').waitFor();assert.equal(await state(p),null);assert.deepEqual(errors,[]);await ctx.close();
  });
  await check('odświeżenie zachowuje kolejkę; przerwany timer kończy się oceną',async()=>{
-  const ctx=await browser.newContext(),p=await ctx.newPage();await p.goto(url);await p.locator('#start').click();await p.locator('#reveal').click();const queue=(await state(p)).queue;
+  const ctx=await browser.newContext(),p=await ctx.newPage();await p.goto(url);await p.locator('#start').click();await p.locator('#reveal').click();await p.locator('#start-timer').click();const queue=(await state(p)).queue;
   await p.reload();await p.locator('#continue').click();assert.equal((await state(p)).stage,'judging');assert.deepEqual((await state(p)).queue,queue);assert.equal(await p.locator('#timer').count(),0);
-  await p.locator('#no').click();await p.locator('#next').click();await p.locator('#reveal').click();
+  await p.locator('#no').click();await p.locator('#next').click();await p.locator('#reveal').click();await p.locator('#start-timer').click();
   // Symulacja ukrycia w tej samej przeglądarce: test obsługi zdarzenia visibilitychange.
   await p.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));});
   assert.equal((await state(p)).stage,'judging');await ctx.close();
@@ -81,7 +81,7 @@ try{
  await check('prawdziwy service worker: cały start i odświeżenie offline w /5-sekund/',async()=>{
   const ctx=await browser.newContext(),p=await ctx.newPage();await p.goto(url);await p.waitForFunction(()=>document.querySelector('#offline').textContent==='GOTOWE OFFLINE');
   await p.reload();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);const cache=await p.evaluate(async()=>{const k=(await caches.keys()).find(k=>k.startsWith('5-sekund:'));return (await (await caches.open(k)).keys()).map(r=>new URL(r.url).pathname);});
-  assert.equal(cache.length,10);assert.ok(cache.includes('/5-sekund/questions.js'));await ctx.setOffline(true);await p.reload();await p.locator('#start').click();await p.locator('#reveal').click();const queue=(await state(p)).queue;
+  assert.equal(cache.length,10);assert.ok(cache.includes('/5-sekund/questions.js'));await ctx.setOffline(true);await p.reload();await p.locator('#start').click();await p.locator('#reveal').click();await p.locator('#start-timer').click();const queue=(await state(p)).queue;
   await p.reload();await p.locator('#continue').click();assert.equal((await state(p)).stage,'judging');assert.deepEqual((await state(p)).queue,queue);
   await p.locator('#yes').click();assert.equal((await state(p)).history.length,1);await ctx.close();
  });
